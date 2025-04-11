@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Руководство по Q-обучению</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --warning-color: #e74c3c;
+            --highlight-color: #f39c12;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        h1, h2, h3, h4 {
+            color: var(--dark-color);
+            margin-top: 1.5em;
+        }
+        
+        header h1 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        .intro {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        
+        .main-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .side-panel {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+        
+        .formula {
+            background-color: var(--light-color);
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1rem 0;
+            overflow-x: auto;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        .formula-highlight {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .parameter {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .parameter label {
+            flex: 1;
+            font-weight: bold;
+        }
+        
+        .parameter input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            margin: 0.5rem 0;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        button.secondary {
+            background-color: var(--secondary-color);
+        }
+        
+        button.secondary:hover {
+            background-color: #27ae60;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        canvas {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+        
+        .flex-container {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        
+        table th {
+            background-color: var(--light-color);
+        }
+        
+        .highlight {
+            background-color: rgba(46, 204, 113, 0.2);
+        }
+        
+        .code-block {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .callout {
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            background-color: rgba(52, 152, 219, 0.1);
+            margin: 1rem 0;
+        }
+        
+        .warning {
+            border-left: 4px solid var(--warning-color);
+            padding: 1rem;
+            background-color: rgba(231, 76, 60, 0.1);
+            margin: 1rem 0;
+        }
+        
+        .note {
+            border-left: 4px solid var(--highlight-color);
+            padding: 1rem;
+            background-color: rgba(243, 156, 18, 0.1);
+            margin: 1rem 0;
+        }
+        
+        .image-container {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .caption {
+            font-style: italic;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .stat-box {
+            background-color: var(--light-color);
+            padding: 1rem;
+            border-radius: 4px;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0.5rem 0;
+        }
+        
+        .tab-container {
+            margin: 1.5rem 0;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .tab-button {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .tab-button.active {
+            border-bottom: 3px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .tab-content {
+            padding: 1.5rem 0;
+        }
+        
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .side-panel {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Q-Обучение с подкреплением</h1>
+        <p>Подробное интерактивное руководство по алгоритму обучения с подкреплением</p>
+    </header>
+    
+    <div class="container">
+        <div class="intro">
+            <h2>Что такое Q-обучение?</h2>
+            <p>
+                Q-обучение (Q-learning) — это алгоритм обучения с подкреплением, который позволяет агентам автоматически 
+                определять оптимальную стратегию действий через взаимодействие с окружающей средой. В основе метода лежит 
+                создание и обновление "Q-таблицы", которая сопоставляет состояниям и действиям их ожидаемые "ценности" (Q-значения).
+            </p>
+            <div class="callout">
+                <strong>Основная идея:</strong> Агент учится на собственном опыте, корректируя свои оценки ценности 
+                различных действий в разных состояниях, чтобы максимизировать суммарную награду.
+            </div>
+        </div>
+        
+        <div class="grid-container">
+            <div class="main-content">
+                <h2>Теоретические основы Q-обучения</h2>
+                
+                <h3>Основные компоненты</h3>
+                <ul>
+                    <li><strong>Агент</strong> — сущность, которая принимает решения и выполняет действия</li>
+                    <li><strong>Среда</strong> — всё, с чем взаимодействует агент</li>
+                    <li><strong>Состояние (S)</strong> — текущая ситуация, в которой находится агент</li>
+                    <li><strong>Действие (A)</strong> — возможный ход, который может выполнить агент</li>
+                    <li><strong>Награда (R)</strong> — обратная связь от среды, показывающая полезность действия</li>
+                    <li><strong>Q-таблица</strong> — хранит значения Q(S,A) для всех пар состояние-действие</li>
+                </ul>
+                
+                <h3>Формула обновления Q-значений</h3>
+                <p>
+                    Ключевой частью Q-обучения является формула обновления Q-значений. В вашей реализации используется следующая формула:
+                </p>
+                
+                <div class="formula">
+                    Q[S_][A] = Q[S_][A] + α * (R + γ * bestActionBonus - Q[S_][A])
+                </div>
+                
+                <p>Где:</p>
+                <ul>
+                    <li><strong>Q[S_][A]</strong> — текущее Q-значение для состояния S_ и действия A</li>
+                    <li><strong>α (альфа)</strong> — скорость обучения (0 &lt; α ≤ 1)</li>
+                    <li><strong>R</strong> — полученная награда</li>
+                    <li><strong>γ (гамма)</strong> — коэффициент дисконтирования (0 ≤ γ &lt; 1)</li>
+                    <li><strong>bestActionBonus</strong> — максимальное Q-значение для следующего состояния</li>
+                </ul>
+                
+                <div class="note">
+                    <p>Эту формулу можно переписать в более классическом виде, чтобы лучше понять её компоненты:</p>
+                    <div class="formula">
+                        Q(s,a) ← Q(s,a) + α * [r + γ * max<sub>a'</sub> Q(s',a') - Q(s,a)]
+                    </div>
+                    <p>Где s' — следующее состояние, а max<sub>a'</sub> Q(s',a') — максимальное Q-значение для следующего состояния.</p>
+                </div>
+                
+                <h3>Детальный разбор формулы</h3>
+                
+                <h4>1. Текущая оценка: Q[S_][A]</h4>
+                <p>
+                    Это наша текущая оценка ценности выполнения действия A в состоянии S_. По сути, это 
+                    то, что агент "думает" о выгодности этого действия на текущий момент.
+                </p>
+                
+                <h4>2. Коэффициент обучения: α (альфа)</h4>
+                <p>
+                    Альфа контролирует скорость обучения. Она определяет, насколько быстро агент будет 
+                    корректировать свои оценки на основе нового опыта:
+                </p>
+                <ul>
+                    <li>При α = 1, агент полностью перезаписывает старую оценку новой</li>
+                    <li>При α = 0.1, агент лишь немного корректирует оценку в сторону новой информации</li>
+                </ul>
+                <p>
+                    Как правило, небольшие значения α (0.1-0.3) работают лучше, особенно в стохастических 
+                    средах, так как они обеспечивают более стабильное обучение.
+                </p>
+                
+                <h4>3. Целевая оценка: R + γ * bestActionBonus</h4>
+                <p>
+                    Эта часть формулы представляет собой новую, "целевую" оценку, к которой мы хотим приблизить наше Q-значение:
+                </p>
+                <ul>
+                    <li><strong>R</strong> — мгновенная награда, полученная за действие</li>
+                    <li><strong>γ (гамма) * bestActionBonus</strong> — дисконтированная оценка будущих наград</li>
+                </ul>
+                
+                <h4>4. Коэффициент дисконтирования: γ (гамма)</h4>
+                <p>
+                    Гамма определяет, насколько важны будущие награды по сравнению с мгновенными:
+                </p>
+                <ul>
+                    <li>При γ = 0, агент учитывает только мгновенную награду (близорукое поведение)</li>
+                    <li>При γ = 0.9, агент серьезно учитывает будущие награды (дальновидное поведение)</li>
+                </ul>
+                <p>
+                    Установка γ близко к 1 заставляет агента стремиться к долгосрочным наградам, 
+                    что часто необходимо в сложных задачах.
+                </p>
+                
+                <h4>5. Ошибка временной разности: (R + γ * bestActionBonus - Q[S_][A])</h4>
+                <p>
+                    Эта часть формулы вычисляет "ошибку" между целевой оценкой и текущей оценкой. 
+                    Она показывает, насколько текущая оценка отличается от новой информации, полученной 
+                    из опыта.
+                </p>
+                
+                <div class="callout">
+                    <strong>Ключевой инсайт:</strong> Q-обучение постепенно приближает Q-значения к 
+                    "истинным" ценностям действий через повторяющееся взаимодействие с окружающей средой. 
+                    С каждым обновлением оценки становятся всё более точными.
+                </div>
+                
+                <h3>Как работает ваша функция findBestAction()</h3>
+                
+                <div class="code-block">
+findBestAction(S, S_, A, R) {
+    let bestActionBonus = this.findBest(S);
+    Q[S_][A] = Q[S_][A] + ql.alpha * (R + ql.gamma * bestActionBonus.bonus - Q[S_][A]);
+
+    if (Q[S][A] > bestCarPoints.count || bestCarPoints.count === 0) {
+        bestCarPoints.count = Q[S][A];
+    }
+}
+                </div>
+                
+                <p>Разберем пошагово, что здесь происходит:</p>
+                
+                <ol>
+                    <li><strong>bestActionBonus = this.findBest(S)</strong> — находит действие с максимальным Q-значением 
+                        для состояния S и возвращает это значение в свойстве bonus</li>
+                    <li><strong>Q[S_][A] = Q[S_][A] + ql.alpha * (R + ql.gamma * bestActionBonus.bonus - Q[S_][A])</strong> — 
+                        обновляет Q-значение для текущего состояния S_ и действия A по формуле Q-обучения</li>
+                    <li><strong>if (Q[S][A] > bestCarPoints.count || bestCarPoints.count === 0) {...}</strong> — 
+                        отслеживает максимальное Q-значение для визуализации или других целей</li>
+                </ol>
+                
+                <div class="warning">
+                    <strong>Важное замечание:</strong> В вашей реализации есть потенциальная путаница в использовании 
+                    S и S_. Обычно S_ обозначает следующее состояние, а S — текущее. Однако в вашем коде они могут 
+                    использоваться наоборот. Стоит внимательно проверить логику применения формулы.
+                </div>
+                
+                <h3>Исследование vs. Использование (Exploration vs. Exploitation)</h3>
+                
+                <p>
+                    Важным аспектом Q-обучения является баланс между исследованием (выбор случайных действий для 
+                    получения новой информации) и использованием (выбор наилучших действий на основе текущих знаний).
+                </p>
+                
+                <p>
+                    Для этого часто применяется стратегия ε-жадного (epsilon-greedy) выбора действий:
+                </p>
+                
+                <div class="code-block">
+function chooseAction(state) {
+    // С вероятностью epsilon выбираем случайное действие (исследование)
+    if (Math.random() < epsilon) {
+        return Math.floor(Math.random() * numberOfActions);
+    }
+    
+    // В остальных случаях выбираем лучшее действие (использование)
+    return findBest(state).action;
+}
+                </div>
+                
+                <p>
+                    Параметр ε (epsilon) обычно начинается с высокого значения (например, 0.9) и постепенно 
+                    уменьшается по мере обучения. Это позволяет агенту больше исследовать вначале и больше 
+                    использовать накопленные знания позже.
+                </p>
+                
+                <h3>Сходимость Q-обучения</h3>
+                
+                <p>
+                    Q-обучение гарантированно сходится к оптимальной политике при следующих условиях:
+                </p>
+                
+                <ol>
+                    <li>Все пары состояние-действие посещаются бесконечное число раз</li>
+                    <li>Коэффициент обучения α уменьшается со временем (но не слишком быстро)</li>
+                    <li>Среда является Марковским процессом принятия решений (то есть, будущее состояние 
+                        зависит только от текущего состояния и действия, а не от предыдущей истории)</li>
+                </ol>
+                
+                <p>
+                    На практике, даже если эти условия не полностью соблюдаются, Q-обучение часто 
+                    находит очень хорошие приближения к оптимальной политике.
+                </p>
+                
+                <h3>Практическое применение Q-обучения</h3>
+                
+                <p>Q-обучение успешно применяется в различных областях:</p>
+                
+                <ul>
+                    <li><strong>Игры</strong> — обучение ИИ играть в настольные и видеоигры</li>
+                    <li><strong>Робототехника</strong> — навигация, манипуляция объектами</li>
+                    <li><strong>Управление ресурсами</strong> — оптимизация распределения ресурсов</li>
+                    <li><strong>Автоматизация</strong> — самонастраивающиеся системы управления</li>
+                    <li><strong>Рекомендательные системы</strong> — персонализация контента</li>
+                </ul>
+                
+                <div class="callout">
+                    <strong>Преимущества Q-обучения:</strong>
+                    <ul>
+                        <li>Не требует предварительной модели среды</li>
+                        <li>Может работать с непрерывными пространствами состояний и действий (с аппроксимацией)</li>
+                        <li>Применимо к широкому спектру задач</li>
+                        <li>Относительно простая реализация</li>
+                    </ul>
+                </div>
+                
+                <h2>Интерактивная демонстрация</h2>
+                
+                <p>
+                    Ниже вы можете увидеть работу Q-обучения в действии. Настройте параметры и наблюдайте,
+                    как агент учится находить оптимальный путь в среде с препятствиями.
+                </p>
+                
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" data-tab="simulation">Симуляция</button>
+                        <button class="tab-button" data-tab="q-table">Q-таблица</button>
+                        <button class="tab-button" data-tab="learning-curve">Кривая обучения</button>
+                    </div>
+                    
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="simulation">
+                            <canvas id="environmentCanvas" width="500" height="500"></canvas>
+                            
+                            <div class="buttons-container">
+                                <button id="startBtn">Запустить обучение</button>
+                                <button id="stopBtn">Остановить</button>
+                                <button id="resetBtn" class="secondary">Сбросить</button>
+                            </div>
+                            
+                            <div class="stats">
+                                <div class="stat-box">
+                                    <div>Эпизоды</div>
+                                    <div class="stat-value" id="episodeCount">0</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div>Успешность</div>
+                                    <div class="stat-value" id="successRate">0%</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div>Сред. награда</div>
+                                    <div class="stat-value" id="avgReward">0</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div>Эпсилон</div>
+                                    <div class="stat-value" id="currentEpsilon">0.3</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane" id="q-table">
+                            <p>Здесь отображается фрагмент Q-таблицы с наиболее важными состояниями:</p>
+                            <div id="qTableContainer">
+                                <table id="qTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Состояние</th>
+                                            <th>Вверх</th>
+                                            <th>Вправо</th>
+                                            <th>Вниз</th>
+                                            <th>Влево</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Заполняется динамически -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane" id="learning-curve">
+                            <canvas id="learningCurveCanvas" width="600" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="side-panel">
+                <h3>Параметры Q-обучения</h3>
+                
+                <div class="parameter">
+                    <label for="alpha">Скорость обучения (α):</label>
+                    <input type="range" id="alpha" min="0.01" max="1" step="0.01" value="0.1">
+                    <span id="alphaValue">0.1</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="gamma">Коэффициент дисконтирования (γ):</label>
+                    <input type="range" id="gamma" min="0" max="0.99" step="0.01" value="0.9">
+                    <span id="gammaValue">0.9</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="epsilon">Начальный коэффициент исследования (ε):</label>
+                    <input type="range" id="epsilon" min="0" max="1" step="0.01" value="0.3">
+                    <span id="epsilonValue">0.3</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="epsilonDecay">Скорость уменьшения ε:</label>
+                    <input type="range" id="epsilonDecay" min="0.9" max="0.9999" step="0.001" value="0.995">
+                    <span id="epsilonDecayValue">0.995</span>
+                </div>
+                
+                <h3>Награды</h3>
+                
+                <div class="parameter">
+                    <label for="rewardGoal">За достижение цели:</label>
+                    <input type="number" id="rewardGoal" min="1" max="1000" value="100">
+                </div>
+                
+                <div class="parameter">
+                    <label for="rewardObstacle">За столкновение с препятствием:</label>
+                    <input type="number" id="rewardObstacle" min="-1000" max="0" value="-100">
+                </div>
+                
+                <div class="parameter">
+                    <label for="rewardStep">За каждый шаг:</label>
+                    <input type="number" id="rewardStep" min="-100" max="100" value="-1">
+                </div>
+                
+                <h3>Настройки среды</h3>
+                
+                <div class="parameter">
+                    <label for="obstacleCount">Количество препятствий:</label>
+                    <input type="range" id="obstacleCount" min="0" max="40" step="1" value="15">
+                    <span id="obstacleCountValue">15</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="episodeSpeedMultiplier">Скорость симуляции:</label>
+                    <input type="range" id="episodeSpeedMultiplier" min="1" max="1000" value="10">
+                    <span id="episodeSpeedMultiplierValue">10x</span>
+                </div>
+                
+                <button id="applySettingsBtn" class="secondary">Применить настройки</button>
+                
+                <div class="note" style="margin-top: 2rem;">
+                    <p><strong>Совет:</strong> Попробуйте различные комбинации параметров, чтобы увидеть, 
+                    как они влияют на скорость и качество обучения.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <h2>Расширения и усовершенствования Q-обучения</h2>
+            
+            <div class="flex-container">
+                <div class="card">
+                    <h3>Deep Q-Network (DQN)</h3>
+                    <p>
+                        Использует нейронные сети для аппроксимации Q-функции, что позволяет 
+                        работать с очень большими или непрерывными пространствами состояний.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <h3>Double Q-Learning</h3>
+                    <p>
+                        Использует две Q-функции для уменьшения переоценки значений действий,
+                        что приводит к более стабильному обучению.
+                    </p>
+                </div>
+                
+                <div class="card">
+                    <h3>Prioritized Experience Replay</h3>
+                    <p><h3>Prioritized Experience Replay</h3>
+                    <p>
+                        Сохраняет опыт агента и повторно использует его для обучения, 
+                        отдавая приоритет наиболее информативным примерам.
+                    </p>
+                </div>
+            </div>
+            
+            <h3>Применение в сложных задачах</h3>
+            <p>
+                В чистом виде Q-обучение работает хорошо для задач с небольшим количеством состояний и действий. 
+                Однако для сложных задач с большим пространством состояний требуются дополнительные методы:
+            </p>
+            
+            <ul>
+                <li><strong>Функциональная аппроксимация</strong> — использование функций (например, нейронных сетей) для аппроксимации Q-значений</li>
+                <li><strong>Иерархическое обучение</strong> — разбиение сложной задачи на подзадачи</li>
+                <li><strong>Трансферное обучение</strong> — перенос знаний из одной задачи в другую</li>
+                <li><strong>Мультиагентное обучение</strong> — координация действий нескольких обучающихся агентов</li>
+            </ul>
+            
+            <h3>Сравнение с другими методами обучения с подкреплением</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Метод</th>
+                        <th>Преимущества</th>
+                        <th>Недостатки</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Q-обучение</td>
+                        <td>
+                            <ul>
+                                <li>Не требует модели среды</li>
+                                <li>Простая реализация</li>
+                                <li>Гарантия сходимости</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>Проблемы с большими пространствами состояний</li>
+                                <li>Медленная сходимость в некоторых задачах</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>SARSA</td>
+                        <td>
+                            <ul>
+                                <li>Более безопасное обучение</li>
+                                <li>Учитывает исследовательское поведение</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>Зависит от конкретной политики</li>
+                                <li>Медленнее находит оптимальную политику</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Policy Gradient</td>
+                        <td>
+                            <ul>
+                                <li>Хорошо работает с непрерывными действиями</li>
+                                <li>Может учиться стохастическим политикам</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>Высокая дисперсия градиентов</li>
+                                <li>Склонность к локальным оптимумам</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h2>Разбор типичных проблем при реализации Q-обучения</h2>
+            
+            <div class="warning">
+                <h3>Неправильное обновление Q-значений</h3>
+                <p>
+                    Частая ошибка — неправильное применение формулы обновления. Убедитесь, что вы:
+                </p>
+                <ul>
+                    <li>Используете верный порядок состояний (текущее и следующее)</li>
+                    <li>Корректно вычисляете максимальное Q-значение для следующего состояния</li>
+                    <li>Правильно применяете коэффициенты α и γ</li>
+                </ul>
+            </div>
+            
+            <div class="callout">
+                <h3>Проблема исследования</h3>
+                <p>
+                    Если агент слишком быстро перестаёт исследовать среду, он может застрять в субоптимальном решении. 
+                    Рекомендации:
+                </p>
+                <ul>
+                    <li>Начинайте с высокого значения ε (например, 0.9)</li>
+                    <li>Медленно уменьшайте ε со временем</li>
+                    <li>Установите минимальное значение ε (например, 0.01) для постоянного небольшого исследования</li>
+                </ul>
+            </div>
+            
+            <div class="note">
+                <h3>Проблема масштабирования наград</h3>
+                <p>
+                    Слишком большие или маленькие значения наград могут привести к нестабильному обучению. Лучше:
+                </p>
+                <ul>
+                    <li>Нормализовать награды в определённый диапазон (например, [-1, 1])</li>
+                    <li>Балансировать положительные и отрицательные награды</li>
+                    <li>Экспериментировать с разными схемами наград</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Интерактивное руководство по Q-обучению с подкреплением &copy; 2023</p>
+    </footer>
+    
+    <script>
+        // Настройки обучения
+        const ql = {
+            alpha: 0.1,       // Скорость обучения
+            gamma: 0.9,       // Коэффициент дисконтирования
+            epsilon: 0.3,     // Коэффициент исследования
+            epsilonDecay: 0.995 // Скорость уменьшения эпсилон
+        };
+        
+        // Настройки наград
+        const rewards = {
+            goal: 100,       // Награда за достижение цели
+            obstacle: -100,  // Награда за столкновение с препятствием
+            step: -1         // Награда за каждый шаг
+        };
+        
+        // Настройки среды
+        const envSettings = {
+            gridSize: 10,            // Размер сетки
+            obstacleCount: 15,       // Количество препятствий
+            episodeSpeedMultiplier: 10 // Множитель скорости симуляции
+        };
+        
+        // Статистика
+        const stats = {
+            episodes: 0,
+            successCount: 0,
+            successRate: 0,
+            rewards: [],
+            recentRewards: [],
+            averageReward: 0
+        };
+        
+        // Игровая среда
+        const environment = {
+            grid: [],
+            agent: { x: 0, y: 0 },
+            goal: { x: 9, y: 9 },
+            obstacles: [],
+            isTraining: false,
+            currentEpisodeSteps: 0,
+            maxEpisodeSteps: 100,
+            animationId: null,
+            
+            // Инициализация среды
+            init() {
+                this.createGrid();
+                this.placeObstacles();
+                this.resetAgent();
+                this.render();
+            },
+            
+            // Создание сетки
+            createGrid() {
+                this.grid = [];
+                for (let y = 0; y < envSettings.gridSize; y++) {
+                    this.grid[y] = [];
+                    for (let x = 0; x < envSettings.gridSize; x++) {
+                        this.grid[y][x] = 0; // 0 - пустая клетка
+                    }
+                }
+                
+                // Установка цели
+                this.goal = { 
+                    x: envSettings.gridSize - 1, 
+                    y: envSettings.gridSize - 1 
+                };
+                this.grid[this.goal.y][this.goal.x] = 2; // 2 - цель
+            },
+            
+            // Размещение препятствий
+            placeObstacles() {
+                this.obstacles = [];
+                
+                for (let i = 0; i < envSettings.obstacleCount; i++) {
+                    let x, y;
+                    do {
+                        x = Math.floor(Math.random() * envSettings.gridSize);
+                        y = Math.floor(Math.random() * envSettings.gridSize);
+                    } while (
+                        (x === 0 && y === 0) || // Не ставим препятствия на старте
+                        (x === this.goal.x && y === this.goal.y) || // Не ставим препятствия на цели
+                        this.grid[y][x] === 1 // Не ставим препятствия на уже существующие препятствия
+                    );
+                    
+                    this.obstacles.push({ x, y });
+                    this.grid[y][x] = 1; // 1 - препятствие
+                }
+            },
+            
+            // Сброс агента в начальное положение
+            resetAgent() {
+                this.agent = { x: 0, y: 0 };
+                this.currentEpisodeSteps = 0;
+            },
+            
+            // Отрисовка среды
+            render() {
+                const canvas = document.getElementById('environmentCanvas');
+                const ctx = canvas.getContext('2d');
+                const cellWidth = canvas.width / envSettings.gridSize;
+                const cellHeight = canvas.height / envSettings.gridSize;
+                
+                // Очистка холста
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Отрисовка сетки
+                ctx.strokeStyle = '#ccc';
+                ctx.lineWidth = 1;
+                
+                for (let i = 0; i <= envSettings.gridSize; i++) {
+                    const pos = i * cellWidth;
+                    
+                    // Вертикальные линии
+                    ctx.beginPath();
+                    ctx.moveTo(pos, 0);
+                    ctx.lineTo(pos, canvas.height);
+                    ctx.stroke();
+                    
+                    // Горизонтальные линии
+                    ctx.beginPath();
+                    ctx.moveTo(0, pos);
+                    ctx.lineTo(canvas.width, pos);
+                    ctx.stroke();
+                }
+                
+                // Отрисовка препятствий
+                ctx.fillStyle = '#e74c3c';
+                for (const obstacle of this.obstacles) {
+                    ctx.fillRect(
+                        obstacle.x * cellWidth,
+                        obstacle.y * cellHeight,
+                        cellWidth,
+                        cellHeight
+                    );
+                }
+                
+                // Отрисовка цели
+                ctx.fillStyle = '#2ecc71';
+                ctx.fillRect(
+                    this.goal.x * cellWidth,
+                    this.goal.y * cellHeight,
+                    cellWidth,
+                    cellHeight
+                );
+                
+                // Отрисовка агента
+                ctx.fillStyle = '#3498db';
+                ctx.beginPath();
+                ctx.arc(
+                    this.agent.x * cellWidth + cellWidth / 2,
+                    this.agent.y * cellHeight + cellHeight / 2,
+                    cellWidth / 3,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.fill();
+                
+                // Отрисовка оптимального пути (если есть)
+                this.drawOptimalPath(ctx, cellWidth, cellHeight);
+            },
+            
+            // Отрисовка оптимального пути
+            drawOptimalPath(ctx, cellWidth, cellHeight) {
+                if (stats.episodes < 100) return; // Не рисуем путь на ранних этапах обучения
+                
+                // Временно сохраняем положение агента
+                const originalX = this.agent.x;
+                const originalY = this.agent.y;
+                
+                // Устанавливаем агента в начальное положение для демонстрации пути
+                let x = 0;
+                let y = 0;
+                let pathSteps = 0;
+                const maxPathSteps = 100; // Предотвращение бесконечных циклов
+                
+                ctx.strokeStyle = 'rgba(52, 152, 219, 0.5)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(x * cellWidth + cellWidth / 2, y * cellHeight + cellHeight / 2);
+                
+                // Следуем оптимальной политике
+                while (!(x === this.goal.x && y === this.goal.y) && pathSteps < maxPathSteps) {
+                    const state = `${x},${y}`;
+                    const bestAction = qLearning.findBest(state).action;
+                    
+                    // Применяем действие
+                    const [dx, dy] = qLearning.actions[bestAction];
+                    const newX = x + dx;
+                    const newY = y + dy;
+                    
+                    // Проверяем, что новая позиция валидна
+                    if (qLearning.isValidPosition(newX, newY)) {
+                        x = newX;
+                        y = newY;
+                        ctx.lineTo(x * cellWidth + cellWidth / 2, y * cellHeight + cellHeight / 2);
+                    } else {
+                        break; // Если оптимальный путь ведет в препятствие, обучение еще не завершено
+                    }
+                    
+                    pathSteps++;
+                }
+                
+                ctx.stroke();
+                
+                // Восстанавливаем положение агента
+                this.agent.x = originalX;
+                this.agent.y = originalY;
+            }
+        };
+        
+        // Q-обучение
+        const qLearning = {
+            Q: {},         // Q-таблица
+            bestQValue: 0, // Максимальное Q-значение
+            
+            // Действия: вверх, вправо, вниз, влево
+            actions: [
+                [0, -1], // Вверх
+                [1, 0],  // Вправо
+                [0, 1],  // Вниз
+                [-1, 0]  // Влево
+            ],
+            
+            // Инициализация Q-обучения
+            init() {
+                this.Q = {};
+                this.bestQValue = 0;
+            },
+            
+            // Получение состояния
+            getState(x, y) {
+                return `${x},${y}`;
+            },
+            
+            // Инициализация Q-значений для состояния
+            initQValues(state) {
+                if (!this.Q[state]) {
+                    this.Q[state] = [0, 0, 0, 0]; // Для 4 действий
+                }
+            },
+            
+            // Поиск лучшего действия для состояния
+            findBest(state) {
+                this.initQValues(state);
+                const qValues = this.Q[state];
+                const maxValue = Math.max(...qValues);
+                const actionIndex = qValues.indexOf(maxValue);
+                return { action: actionIndex, bonus: maxValue };
+            },
+            
+            // Основная функция обновления Q-значений
+            findBestAction(S, S_, A, R) {
+                const bestActionBonus = this.findBest(S);
+                
+                this.initQValues(S_);
+                this.Q[S_][A] = this.Q[S_][A] + ql.alpha * (R + ql.gamma * bestActionBonus.bonus - this.Q[S_][A]);
+                
+                if (this.Q[S_][A] > this.bestQValue) {
+                    this.bestQValue = this.Q[S_][A];
+                }
+            },
+            
+            // Выбор действия с использованием epsilon-greedy стратегии
+            chooseAction(state) {
+                if (Math.random() < ql.epsilon) {
+                    // Исследование: выбираем случайное действие
+                    return Math.floor(Math.random() * this.actions.length);
+                } else {
+                    // Использование: выбираем лучшее действие
+                    return this.findBest(state).action;
+                }
+            },
+            
+            // Проверка валидности позиции
+            isValidPosition(x, y) {
+                if (x < 0 || x >= envSettings.gridSize || y < 0 || y >= envSettings.gridSize) {
+                    return false; // За пределами сетки
+                }
+                
+                // Проверка на препятствие
+                for (const obstacle of environment.obstacles) {
+                    if (x === obstacle.x && y === obstacle.y) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            },
+            
+            // Выполнение одного шага эпизода
+            step() {
+                // Получение текущего состояния
+                const currentState = this.getState(environment.agent.x, environment.agent.y);
+                
+                // Выбор действия
+                const actionIndex = this.chooseAction(currentState);
+                const [dx, dy] = this.actions[actionIndex];
+                
+                // Вычисление новой позиции
+                const newX = environment.agent.x + dx;
+                const newY = environment.agent.y + dy;
+                
+                // Вычисление награды и проверка завершения эпизода
+                let reward = rewards.step;
+                let done = false;
+                
+                if (!this.isValidPosition(newX, newY)) {
+                    // Столкновение со стеной или препятствием
+                    reward = rewards.obstacle;
+                    done = true;
+                } else {
+                    // Обновляем позицию агента
+                    environment.agent.x = newX;
+                    environment.agent.y = newY;
+                    
+                    // Проверка достижения цели
+                    if (environment.agent.x === environment.goal.x && environment.agent.y === environment.goal.y) {
+                        reward = rewards.goal;
+                        done = true;
+                        stats.successCount++;
+                    }
+                }
+                
+                // Получение нового состояния
+                const newState = this.getState(environment.agent.x, environment.agent.y);
+                
+                // Обновление Q-значений
+                this.findBestAction(newState, currentState, actionIndex, reward);
+                
+                // Обновление статистики
+                stats.recentRewards.push(reward);
+                if (stats.recentRewards.length > 100) {
+                    stats.recentRewards.shift();
+                }
+                
+                environment.currentEpisodeSteps++;
+                
+                // Проверка превышения максимального количества шагов
+                if (environment.currentEpisodeSteps >= environment.maxEpisodeSteps) {
+                    done = true;
+                }
+                
+                return { reward, done };
+            },
+            
+            // Запуск одного эпизода
+            runEpisode() {
+                // Сброс агента в начальное положение
+                environment.resetAgent();
+                
+                let episodeReward = 0;
+                let done = false;
+                
+                // Выполняем шаги эпизода пока не достигнем цели или максимального числа шагов
+                while (!done) {
+                    const result = this.step();
+                    episodeReward += result.reward;
+                    done = result.done;
+                }
+                
+                // Обновление статистики
+                stats.episodes++;
+                stats.rewards.push(episodeReward);
+                if (stats.rewards.length > 100) {
+                    stats.rewards.shift();
+                }
+                
+                // Обновление успешности обучения
+                stats.successRate = stats.episodes > 0 ? (stats.successCount / stats.episodes) * 100 : 0;
+                
+                // Уменьшение epsilon
+                ql.epsilon *= ql.epsilonDecay;
+                ql.epsilon = Math.max(0.01, ql.epsilon); // Не опускаем ниже 0.01
+                
+                // Обновление средней награды
+                stats.averageReward = stats.rewards.reduce((sum, r) => sum + r, 0) / stats.rewards.length;
+                
+                // Обновление UI
+                updateUI();
+                
+                // Отрисовка среды
+                environment.render();
+            }
+        };
+        
+        // Запуск обучения
+        function startTraining() {
+            if (environment.isTraining) return;
+            
+            environment.isTraining = true;
+            
+            function trainingLoop() {
+                if (!environment.isTraining) return;
+                
+                // Запускаем несколько эпизодов за один кадр анимации
+                for (let i = 0; i < envSettings.episodeSpeedMultiplier; i++) {
+                    qLearning.runEpisode();
+                }
+                
+                environment.animationId = requestAnimationFrame(trainingLoop);
+            }
+            
+            trainingLoop();
+        }
+        
+        // Остановка обучения
+        function stopTraining() {
+            environment.isTraining = false;
+            if (environment.animationId) {
+                cancelAnimationFrame(environment.animationId);
+                environment.animationId = null;
+            }
+        }
+        
+        // Сброс обучения
+        function resetTraining() {
+            stopTraining();
+            
+            // Сброс статистики
+            stats.episodes = 0;
+            stats.successCount = 0;
+            stats.successRate = 0;
+            stats.rewards = [];
+            stats.recentRewards = [];
+            stats.averageReward = 0;
+            
+            // Сброс Q-обучения
+            qLearning.init();
+            
+            // Сброс среды
+            environment.init();
+            
+            // Обновление UI
+            updateUI();
+            updateQTable();
+            updateLearningCurve();
+        }
+        
+        // Обновление UI
+        function updateUI() {
+            // Обновление статистики
+            document.getElementById('episodeCount').textContent = stats.episodes;
+            document.getElementById('successRate').textContent = stats.successRate.toFixed(1) + '%';
+            document.getElementById('avgReward').textContent = stats.averageReward.toFixed(1);
+            document.getElementById('currentEpsilon').textContent = ql.epsilon.toFixed(3);
+            
+            // Обновление Q-таблицы
+            if (stats.episodes % 10 === 0) {
+                updateQTable();
+            }
+            
+            // Обновление графика обучения
+            if (stats.episodes % 10 === 0) {
+                updateLearningCurve();
+            }
+        }
+        
+        // Обновление Q-таблицы для отображения
+        function updateQTable() {
+            const tableBody = document.querySelector('#qTable tbody');
+            tableBody.innerHTML = '';
+            
+            // Выбираем некоторые важные состояния для отображения
+            const statesToShow = [];
+            
+            // Начальное состояние
+            statesToShow.push(qLearning.getState(0, 0));
+            
+            // Состояние возле цели
+            if (environment.goal.x > 0) {
+                statesToShow.push(qLearning.getState(environment.goal.x - 1, environment.goal.y));
+            }
+            if (environment.goal.y > 0) {
+                statesToShow.push(qLearning.getState(environment.goal.x, environment.goal.y - 1));
+            }
+            
+            // Несколько случайных состояний
+            for (let i = 0; i < 5; i++) {
+                const x = Math.floor(Math.random() * envSettings.gridSize);
+                const y = Math.floor(Math.random() * envSettings.gridSize);
+                const state = qLearning.getState(x, y);
+                if (!statesToShow.includes(state) && qLearning.Q[state]) {
+                    statesToShow.push(state);
+                }
+            }
+            
+            // Заполнение таблицы
+            for (const state of statesToShow) {
+                if (qLearning.Q[state]) {
+                    const row = document.createElement('tr');
+                    
+                    // Добавление состояния
+                    const stateCell = document.createElement('td');
+                    stateCell.textContent = state;
+                    row.appendChild(stateCell);
+                    
+                    // Добавление Q-значений для каждого действия
+                    for (let a = 0; a < qLearning.actions.length; a++) {
+                        const cell = document.createElement('td');
+                        cell.textContent = qLearning.Q[state][a].toFixed(2);
+                        
+                        // Выделение лучшего действия
+                        if (qLearning.findBest(state).action === a) {
+                            cell.classList.add('highlight');
+                        }
+                        
+                        row.appendChild(cell);
+                    }
+                    
+                    tableBody.appendChild(row);
+                }
+            }
+        }
+        
+        // Обновление графика обучения
+        function updateLearningCurve() {
+            const canvas = document.getElementById('learningCurveCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Очистка холста
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Отрисовка оси
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            
+            // Ось X
+            ctx.beginPath();
+            ctx.moveTo(50, canvas.height - 30);
+            ctx.lineTo(canvas.width - 20, canvas.height - 30);
+            ctx.stroke();
+            
+            // Ось Y
+            ctx.beginPath();
+            ctx.moveTo(50, 20);
+            ctx.lineTo(50, canvas.height - 30);
+            ctx.stroke();
+            
+            // Метки осей
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.fillText('Эпизоды', canvas.width / 2, canvas.height - 10);
+            ctx.save();
+            ctx.translate(15, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Средняя награда', 0, 0);
+            ctx.restore();
+            
+            // Если нет данных, ничего не рисуем
+            if (stats.rewards.length === 0) return;
+            
+            // Вычисление масштаба
+            const maxReward = Math.max(...stats.rewards);
+            const minReward = Math.min(...stats.rewards);
+            const rewardRange = Math.max(Math.abs(maxReward), Math.abs(minReward)) * 1.1;
+            
+            const xScale = (canvas.width - 70) / Math.max(100, stats.rewards.length);
+            const yScale = (canvas.height - 50) / (rewardRange * 2);
+            const yZero = canvas.height / 2;
+            
+            // Отрисовка графика средней награды
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            let avgRewards = [];
+            for (let i = 0; i < stats.rewards.length; i++) {
+                const windowSize = Math.min(10, i + 1);
+                const windowStart = Math.max(0, i - windowSize + 1);
+                const windowRewards = stats.rewards.slice(windowStart, i + 1);
+                const avgReward = windowRewards.reduce((sum, r) => sum + r, 0) / windowRewards.length;
+                avgRewards.push(avgReward);
+            }
+            
+            for (let i = 0; i < avgRewards.length; i++) {
+                const x = 50 + i * xScale;
+                const y = yZero - avgRewards[i] * yScale;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Отрисовка точек успеха
+            ctx.fillStyle = '#2ecc71';
+            for (let i = 0; i < stats.rewards.length; i++) {
+                if (stats.rewards[i] >= rewards.goal) {
+                    const x = 50 + i * xScale;
+                    const y = yZero - stats.rewards[i] * yScale;
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+        
+        // Применение настроек
+        function applySettings() {
+            // Обновление параметров Q-обучения
+            ql.alpha = parseFloat(document.getElementById('alpha').value);
+            ql.gamma = parseFloat(document.getElementById('gamma').value);
+            ql.epsilon = parseFloat(document.getElementById('epsilon').value);
+            ql.epsilonDecay = parseFloat(document.getElementById('epsilonDecay').value);
+            
+            // Обновление наград
+            rewards.goal = parseInt(document.getElementById('rewardGoal').value);
+            rewards.obstacle = parseInt(document.getElementById('rewardObstacle').value);
+            rewards.step = parseInt(document.getElementById('rewardStep').value);
+            
+            // Обновление настроек среды
+            envSettings.obstacleCount = parseInt(document.getElementById('obstacleCount').value);
+            envSettings.episodeSpeedMultiplier = parseInt(document.getElementById('episodeSpeedMultiplier').value);
+            
+            // Обновление отображения значений
+            document.getElementById('alphaValue').textContent = ql.alpha.toFixed(2);
+            document.getElementById('gammaValue').textContent = ql.gamma.toFixed(2);
+            document.getElementById('epsilonValue').textContent = ql.epsilon.toFixed(2);
+            document.getElementById('epsilonDecayValue').textContent = ql.epsilonDecay.toFixed(3);
+            document.getElementById('obstacleCountValue').textContent = envSettings.obstacleCount;
+          document.getElementById('episodeSpeedMultiplierValue').textContent = envSettings.episodeSpeedMultiplier + 'x';
+            
+            // Сброс и инициализация среды с новыми параметрами
+            resetTraining();
+        }
+        
+        // Обработка изменения вкладок
+        function setupTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Удаление активного класса со всех кнопок и панелей
+                    document.querySelectorAll('.tab-button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('active');
+                    });
+                    
+                    // Добавление активного класса к выбранной кнопке и панели
+                    button.classList.add('active');
+                    const tabId = button.dataset.tab;
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        }
+        
+        // Инициализация страницы
+        function init() {
+            // Настройка обработчиков событий для ползунков
+            document.getElementById('alpha').addEventListener('input', function() {
+                document.getElementById('alphaValue').textContent = parseFloat(this.value).toFixed(2);
+            });
+            
+            document.getElementById('gamma').addEventListener('input', function() {
+                document.getElementById('gammaValue').textContent = parseFloat(this.value).toFixed(2);
+            });
+            
+            document.getElementById('epsilon').addEventListener('input', function() {
+                document.getElementById('epsilonValue').textContent = parseFloat(this.value).toFixed(2);
+            });
+            
+            document.getElementById('epsilonDecay').addEventListener('input', function() {
+                document.getElementById('epsilonDecayValue').textContent = parseFloat(this.value).toFixed(3);
+            });
+            
+            document.getElementById('obstacleCount').addEventListener('input', function() {
+                document.getElementById('obstacleCountValue').textContent = this.value;
+            });
+            
+            document.getElementById('episodeSpeedMultiplier').addEventListener('input', function() {
+                document.getElementById('episodeSpeedMultiplierValue').textContent = this.value + 'x';
+            });
+            
+            // Настройка обработчиков событий для кнопок
+            document.getElementById('startBtn').addEventListener('click', startTraining);
+            document.getElementById('stopBtn').addEventListener('click', stopTraining);
+            document.getElementById('resetBtn').addEventListener('click', resetTraining);
+            document.getElementById('applySettingsBtn').addEventListener('click', applySettings);
+            
+            // Настройка вкладок
+            setupTabs();
+            
+            // Инициализация Q-обучения и среды
+            qLearning.init();
+            environment.init();
+            
+            // Обновление UI
+            updateUI();
+            updateQTable();
+            updateLearningCurve();
+        }
+        
+        // Запуск инициализации после загрузки страницы
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
